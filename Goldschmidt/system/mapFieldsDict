@@ -9,14 +9,21 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       uniformDimensionedVectorField;
-    location    "constant";
-    object      g;
+    class       dictionary;
+    object      mapFieldsDict;
 }
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 1 -2 0 0 0 0];
-value           (0 0 -9.81);
+// List of pairs of source/target patches for mapping
+patchMap
+(
+);
 
+// List of target patches cutting the source domain (these need to be
+// handled specially e.g. interpolated from internal values)
+cuttingPatches
+(
+);
 
 // ************************************************************************* //
