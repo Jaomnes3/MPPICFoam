@@ -22,6 +22,8 @@ solution
     transient       yes;
     cellValueSourceCorrection off;
 
+    maxCo           1.0;
+
     interpolationSchemes
     {
         rho.water         cell;
@@ -29,6 +31,8 @@ solution
         mu.water          cell;
         alpha.water       cell;
     }
+
+    averagingMethod dual;
 
     integrationSchemes
     {
@@ -46,25 +50,16 @@ solution
 
 constantProperties
 {
-    parcelTypeId 1;
-
-    rhoMin          1e-15;
-    minParcelMass   1e-15;
-
     rho0            2526;
-    youngsModulus   1e8;
-    poissonsRatio   0.35;
-
-    constantVolume  false;
-
-    alphaMax        0.99;
+    alphaMax        0.9;
 }
+
 
 subModels
 {
     particleForces
     {
-        ErgunWenYuDrag
+        PlessisMasliyahDrag
         {
             alphac alpha.water;
         }
@@ -122,52 +117,67 @@ subModels
         );
     }
 
-    StandardWallInteractionCoeffs
-    {
-        type rebound;
-        e    0.97;
-        mu   0.09;
-    }
-
     heatTransferModel none;
 
     surfaceFilmModel none;
 
-    collisionModel pairCollision;
+    packingModel explicit;
 
-    pairCollisionCoeffs
+    explicitCoeffs
     {
-        maxInteractionDistance  0.00005;
-
-        writeReferredParticleCloud no;
-
-        pairModel pairSpringSliderDashpot;
-
-        pairSpringSliderDashpotCoeffs
+        particleStressModel
         {
-            useEquivalentSize   no;
-            alpha               0.02;
-            b                   1.5;
-            mu                  0.10;
-            cohesionEnergyDensity 0;
-            collisionResolutionSteps 12;
-        };
-
-        wallModel wallSpringSliderDashpot;
-
-        wallSpringSliderDashpotCoeffs
+            type HarrisCrighton;
+            alphaPacked 0.65;
+            pSolid 10.0;
+            beta 2.0;
+            eps 1.0e-7;
+        }
+        correctionLimitingMethod
         {
-            useEquivalentSize no;
-            collisionResolutionSteps 12;
-            youngsModulus   1e8;
-            poissonsRatio   0.23;
-            alpha           0.01;
-            b               1.5;
-            mu              0.09;
-            cohesionEnergyDensity 0;
-        };
+            type absolute;
+            e 0.9;
+        }
+    }
 
-        U     U.water;
+    implicitCoeffs
+    {
+        alphaMin 0.0001;
+        rhoMin 1.0;
+        applyLimiting true;
+        applyGravity false;
+        particleStressModel
+        {
+            type HarrisCrighton;
+            alphaPacked 0.65;
+            pSolid 5.0;
+            beta 2.0;
+            eps 1.0e-2;
+        }
+    }
+
+    dampingModel none; // relaxation;
+
+    relaxationCoeffs
+    {
+        timeScaleModel
+        {
+            type nonEquilibrium;
+            alphaPacked 0.65;
+            e 0.9;
+        }
+    }
+
+    isotropyModel stochastic;
+
+    stochasticCoeffs
+    {
+        timeScaleModel
+        {
+            type isotropic;
+            alphaPacked 0.65;
+            e 0.9;
+        }
     }
 
     stochasticCollisionModel none;
